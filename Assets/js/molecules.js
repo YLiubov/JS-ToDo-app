@@ -27,37 +27,36 @@ export const createFormGroup = (labelText, inputId, placeholder) => {
 export const createTodoItem = (task) => {
   const li = LiElm({ className: "todo-item" });
 
-  // если задача изначально completed — добавляем класс
   if (task.completed) li.classList.add("todo-item--completed");
 
-  // левая часть
   const left = BasicElm("div", { className: "todo-item__left" });
 
-  // чекбокс (это атом input, но проще напрямую тут)
   const checkbox = InputElm("checkbox", { className: "todo-item__check" });
   checkbox.checked = task.completed;
 
-  // ✅ ВАЖНО: минимальная логика для синхронизации стиля
-  // когда кликаем чекбокс — меняем класс у li и обновляем task.completed
+  // ✅ меняем стиль completed при клике
   checkbox.addEventListener("change", () => {
     task.completed = checkbox.checked;
     li.classList.toggle("todo-item--completed", task.completed);
   });
 
-  // цветная точка категории
   const dot = BasicElm("span", { className: `todo-item__dot dot--${task.category}` });
 
-  // текст
   const text = TextElm("span", task.title, { className: "todo-item__text" });
 
   left.append(checkbox, dot, text);
 
-  // кнопка Delete (пока без настоящей логики удаления, как требует задание)
   const delBtn = ButtonElm("Delete", { className: "btn btn--ghost btn--danger" });
+
+  // ✅ удаляем задачу со страницы
+  delBtn.addEventListener("click", () => {
+    li.remove();
+  });
 
   li.append(left, delBtn);
   return li;
 };
+
 
 // Молекула: TodoList = ul + много TodoItem
 export const createTodoList = (tasks) => {
