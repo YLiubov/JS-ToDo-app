@@ -1,63 +1,88 @@
-// ==========================
+// ===============================
 // ORGANISMS — большие блоки
-// Здесь собираем приложение: заголовок + форма + список
-// ==========================
+// Header + AddTaskCard + TodoList
+// ===============================
 
 console.log("organism.js loaded");
 
 import { BasicElm, TextElm, ButtonElm, FormElm } from "./atoms.js";
-import { createFormGroup, createTodoList, createTodoItem } from "./molecules.js";
+import { createFormGroup, createTodoList, createTodoItem, createCategoryPicker } from "./molecules.js";
 
+// ----------------------------------------------------
+// ORGANISM: Header
+// ----------------------------------------------------
+const createHeader = () => {
+  const header = BasicElm("header", { className: "app-header" });
+
+  const brand = TextElm("div", "YAKLIUBOV", { className: "app-header__brand" });
+  const title = TextElm("h1", "Task Manager", { className: "app-header__title" });
+  const subtitle = TextElm("p", "Manage your tasks effectively", { className: "app-header__subtitle" });
+
+  header.append(brand, title, subtitle);
+  return header;
+};
+
+// ----------------------------------------------------
+// ORGANISM: Всё приложение
+// ----------------------------------------------------
 export const createTodoApp = (tasks) => {
   const container = BasicElm("div", { className: "app" });
 
-  // Заголовок
-  const title = TextElm("h1", "To-Do List", { className: "app__title" });
+  // ===== Header =====
+  const header = createHeader();
 
-  // ===== ФОРМА (ввод новой задачи) =====
-  const formBox = BasicElm("div", { className: "todo-form" });
+  // ===== Card Add Task =====
+  const formBox = BasicElm("section", { className: "todo-form" });
 
-  // form (нужен, чтобы работал Enter)
+  // form: нужен для submit (Enter)
   const form = FormElm({ className: "todo-form__inner" });
 
-  // FormGroup возвращает wrapper + input
-  const { wrapper: formGroup, input } = createFormGroup("Task", "taskInput", "Enter task...");
+  // label + input
+  const { wrapper: formGroup, input } =
+    createFormGroup("", "taskInput", "Enter a new task...");
 
-  // кнопка Add
-  const addBtn = ButtonElm("Add", { className: "btn btn--primary", type: "submit" });
-  // type submit: тогда Enter в инпуте тоже сработает через submit
+  // кнопка +
+  const addBtn = ButtonElm("+", {
+    className: "btn btn--primary btn--addplus",
+    type: "submit",
+  });
 
   form.append(formGroup, addBtn);
-  formBox.append(form);
 
-  // ===== СПИСОК =====
-  const list = createTodoList(tasks); // это <ul> с существующими задачами
+  // выбор категории (ряд кружков)
+  const categoryPicker = createCategoryPicker("work");
 
-  // ✅ ЛОГИКА ДОБАВЛЕНИЯ (event)
+  // собираем карточку добавления
+  formBox.append(form, categoryPicker);
+
+  // ===== List =====
+  const list = createTodoList(tasks);
+
+  // ===== Add Event =====
   form.addEventListener("submit", (e) => {
-    e.preventDefault(); // чтобы страница не перезагружалась
+    e.preventDefault();
 
-    const value = input.value.trim(); // берём текст, убираем пробелы
-    if (!value) return; // если пусто — ничего не делаем
+    const value = input.value.trim();
+    if (!value) return;
 
-    // создаём новую задачу (минимальная структура)
+    // берём выбранную категорию из categoryPicker
+    const selectedCategory = categoryPicker.dataset.selectedCategory || "work";
+
     const newTask = {
       title: value,
       completed: false,
-      category: "work" // можно поменять на любую дефолтную категорию
+      category: selectedCategory,
     };
 
-    // добавляем в массив задач (чтобы данные тоже обновлялись)
     tasks.push(newTask);
-
-    // создаём <li> через молекулу и добавляем в <ul>
     list.append(createTodoItem(newTask));
 
-    // очищаем input
     input.value = "";
     input.focus();
   });
 
-  container.append(title, formBox, list);
+  // ===== Assemble =====
+  container.append(header, formBox, list);
+
   return container;
 };

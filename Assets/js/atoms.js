@@ -76,3 +76,35 @@ export const LiElm = ({ className = "" } = {}) => {
   if (className) elm.className = className;
   return elm;
 };
+
+
+// ===============================
+// АТОМ: ImgElm
+// Создаёт <img> элемент (подходит и для svg файлов)
+// ===============================
+
+export const ImgElm = (
+  src,                       // путь к файлу
+  alt = "",                  // описание (для доступности)
+  { id = "", className = "" } = {}   // дополнительные настройки
+) => {
+
+  // создаём <img>
+  const img = document.createElement("img");
+
+  // устанавливаем путь к файлу
+  img.src = src;
+
+  // устанавливаем альтернативный текст
+  img.alt = alt;
+
+  // если передан id — добавляем
+  if (id) img.id = id;
+
+  // если передан класс — добавляем
+  if (className) img.className = className;
+
+  // возвращаем готовый элемент
+  return img;
+};
+
